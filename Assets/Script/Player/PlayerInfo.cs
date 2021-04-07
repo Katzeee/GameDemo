@@ -42,6 +42,8 @@ public struct PlayerInfo
     public static float fallMultiplicator;
     [Tooltip("小跳降落乘数")]
     public static float lowerJumpMultiplicator;
+    [Tooltip("是否允许跳跃")]
+    public static bool canJump;//为了让检测跳跃能使用GetButton而不是GetButtonDown，因为GetButtonDown有可能丢键,但是又不想按住空格循环起跳,在退出run状态时会被充值
 
 
 
@@ -102,17 +104,20 @@ public class PlayerIdel : FSMBase
     public override void OnEnter()
     {
         stateAnimator.SetInteger("curState", (int)PlayerInfo.PlayerState.PlayerIdle);
+
     }
 
 
     public override void OnUpdate()
     {
         #region 奔跑逻辑
-        if (Input.GetButton("Horizontal"))//用GetButton是因为要循环检测,即检测按住的情况
+        //如果不加后面判断会在Idle和Run状态中来回切换,要考虑左右键同时按下并不会进入奔跑
+        //也就是单按会进run，两个一起按会从run回来并且不会再进run
+        if (Input.GetButton("Horizontal") && Input.GetAxisRaw("Horizontal") != 0)//用GetButton是因为要循环检测,即检测按住的情况
         {
             stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerRun);
         }
-        if (!Input.GetButton("Horizontal"))
+        if (Input.GetAxisRaw("Horizontal") == 0)//不能用Input.GetButton("Horizontal")判断,因为左右键一起按的情况也得停
         {
             //减速到0，因为松开之后已经转到Idle状态,所以在这判断
             PlayerInfo.playerRigidBody.velocity = new Vector2(Mathf.SmoothDamp(PlayerInfo.playerRigidBody.velocity.x, 0, ref PlayerInfo.velocityX, PlayerInfo.decelerateTime), PlayerInfo.playerRigidBody.velocity.y);
@@ -120,11 +125,15 @@ public class PlayerIdel : FSMBase
         #endregion
 
         #region 跳跃逻辑
-        if (Input.GetButtonDown("Jump"))//转到跳跃状态,这里不用循环检测，所以用GetButtonDown
+        if (PlayerInfo.canJump && Input.GetButton("Jump"))//转到跳跃状态,改了很久这里还是得用GetButton,不然很容易丢操作,但这里加入了canJump进行锁住跳跃动作
         {
             stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerJump);
+            PlayerInfo.canJump = false;
         }
-
+        if (!Input.GetButton("Jump"))//防止玩家进行（跑跳停）的动作,如果做了这个动作但是没写这三行代码,那就跳不起来了
+        {
+            PlayerInfo.canJump = true;
+        }
         #endregion
 
         #region 攻击1逻辑
@@ -140,6 +149,14 @@ public class PlayerIdel : FSMBase
             stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerAttack2);
         }
         #endregion
+    }
+
+    public override void OnExit()
+    {
+        if (!Input.GetButton("Jump"))
+        {
+            PlayerInfo.canJump = true;
+        }
     }
 }
 
@@ -158,6 +175,7 @@ public class PlayerRun : FSMBase
     public override void OnEnter()
     {
         stateAnimator.SetInteger("curState", (int)PlayerInfo.PlayerState.PlayerRun);
+
     }
     public override void OnUpdate()
     {
@@ -173,8 +191,9 @@ public class PlayerRun : FSMBase
 
             PlayerInfo.playerRigidBody.velocity = new Vector2(Mathf.SmoothDamp(PlayerInfo.playerRigidBody.velocity.x, PlayerInfo.moveSpeed * Time.fixedDeltaTime * 60 * -1, ref PlayerInfo.velocityX, PlayerInfo.accelerateTime), PlayerInfo.playerRigidBody.velocity.y);
         }
-        else if(!Input.GetButton("Horizontal"))//如果不加判断会在Idle和Run状态中来回切换
+        else
         {
+            //Debug.Log("IDEL!");
             //减速逻辑在Idle中判断，转回Idle即可
             stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerIdle);
         }
@@ -182,9 +201,16 @@ public class PlayerRun : FSMBase
         #endregion
 
         #region 跳跃逻辑
-        if (Input.GetButtonDown("Jump"))
+        if (PlayerInfo.canJump && Input.GetButton("Jump"))//这里还是得用GetButton,理由如上
         {
             stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerJump);
+            PlayerInfo.canJump = false;
+            //Debug.Log("JUMP!");
+        }
+
+        if (!Input.GetButton("Jump"))//防止有玩家按住空格不放做了（跑跳停跑）的动作,如果这样那再松开空格就检测不到了
+        {
+            PlayerInfo.canJump = true;
         }
         #endregion
 
@@ -201,6 +227,14 @@ public class PlayerRun : FSMBase
             stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerAttack2);
         }
         #endregion
+    }
+
+    public override void OnExit()
+    {
+        if (!Input.GetButton("Jump"))
+        {
+            PlayerInfo.canJump = true;//只有退出奔跑时没有按跳跃键才会允许下次起跳
+        }
     }
 }
 
@@ -230,6 +264,12 @@ public class PlayerJump : FSMBase
 
         #region 跳跃逻辑
         CheckOnGround();
+        if (Input.GetButtonDown("Jump") && PlayerInfo.isOnGround)//这里依然需要检测连续起跳
+        {
+            PlayerInfo.playerRigidBody.velocity = new Vector2(PlayerInfo.playerRigidBody.velocity.x, PlayerInfo.jumpSpeed);
+            //stateAnimator.SetInteger("curState", (int)PlayerInfo.PlayerState.PlayerJump);
+        }
+
 
         if (PlayerInfo.playerRigidBody.velocity.y < 0)//下落状态,加速下落
         {
@@ -241,10 +281,19 @@ public class PlayerJump : FSMBase
             PlayerInfo.playerRigidBody.velocity += Vector2.up * Physics2D.gravity.y * (PlayerInfo.lowerJumpMultiplicator - 1) * Time.fixedDeltaTime;
         }
 
-        if (PlayerInfo.isOnGround && PlayerInfo.playerRigidBody.velocity.y == 0)//落地改回Idle状态,不加后面的判断会让短按空格的小跳逻辑无法执行
+        if (PlayerInfo.isOnGround && PlayerInfo.playerRigidBody.velocity.y == 0)//落地改回Idle状态,不加中间的判断会让短按空格的小跳逻辑无法执行
         {
             stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerIdle);
         }
+
+        //if (PlayerInfo.isOnGround && PlayerInfo.playerRigidBody.velocity.y == 0 && !Input.GetButton("Jump"))//落地改回Idle状态,不加中间的判断会让短按空格的小跳逻辑无法执行
+        //{
+        //    stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerIdle);
+        //}
+        //else if (PlayerInfo.isOnGround && PlayerInfo.playerRigidBody.velocity.y == 0 && Input.GetButton("Jump"))//如果按住Jump键了,则转到run状态
+        //{
+        //    stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerRun);
+        //}
         #endregion
 
         #region 跳跃移动
@@ -272,7 +321,10 @@ public class PlayerJump : FSMBase
 
     public override void OnExit()
     {
-
+        if (!Input.GetButton("Jump"))
+        {
+            PlayerInfo.canJump = true;
+        }
     }
 
     private void CheckOnGround()

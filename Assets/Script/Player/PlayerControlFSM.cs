@@ -45,6 +45,7 @@ public class PlayerControlFSM : MonoSingleton<PlayerControlFSM>
         PlayerInfo.checkpointSize = new Vector2(0.07f, 0.15f);
         PlayerInfo.fallMultiplicator = 2.5f;
         PlayerInfo.lowerJumpMultiplicator = 2;
+        PlayerInfo.canJump = true;
 
         //攻击数据初始化
         PlayerInfo.attack1DecelerateMultiplicator = 0.5f;

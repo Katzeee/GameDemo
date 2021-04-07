@@ -25,7 +25,10 @@ public class GameManager : MonoSingleton<GameManager>
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log(PlayerInfo.playerStateManager.curState);
+        }
     }
 
     private void FixedUpdate()
