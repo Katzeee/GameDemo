@@ -72,6 +72,9 @@ public class PlayerControlFSM : MonoSingleton<PlayerControlFSM>
 
         PlayerAttack2 playerAttack2 = new PlayerAttack2(PlayerInfo.playerAnimator, PlayerInfo.playerStateManager);
         PlayerInfo.playerStateManager.AddState(playerAttack2);
+
+        PlayerDoubleJump playerDoubleJump = new PlayerDoubleJump(PlayerInfo.playerAnimator, PlayerInfo.playerStateManager);
+        PlayerInfo.playerStateManager.AddState(playerDoubleJump);
         #endregion
     }
 

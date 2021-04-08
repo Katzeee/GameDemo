@@ -44,7 +44,7 @@ public struct PlayerInfo
     public static float lowerJumpMultiplicator;
     [Tooltip("是否允许跳跃")]
     public static bool canJump;//为了让检测跳跃能使用GetButton而不是GetButtonDown，因为GetButtonDown有可能丢键,但是又不想按住空格循环起跳,在退出run状态时会被充值
-
+    public static bool canDoubleJump;
 
 
 
@@ -84,6 +84,7 @@ public struct PlayerInfo
         PlayerJump,
         PlayerAttack1,
         PlayerAttack2,
+        PlayerDoubleJump,
 
         StateCount//用于记录有多少状态
 
@@ -247,11 +248,12 @@ public class PlayerJump : FSMBase
 {
     public PlayerJump(Animator tmpAnimator, FSMManager tmpFSMManager) : base(tmpAnimator, tmpFSMManager)
     {
-        
+
     }
-    float timer;
+        
     public override void OnEnter()
     {
+        PlayerInfo.canDoubleJump = false;
         CheckOnGround();
         if (PlayerInfo.isOnGround)//跳跃动作在Enter执行
         {
@@ -281,7 +283,7 @@ public class PlayerJump : FSMBase
             PlayerInfo.playerRigidBody.velocity += Vector2.up * Physics2D.gravity.y * (PlayerInfo.lowerJumpMultiplicator - 1) * Time.fixedDeltaTime;
         }
 
-        if (PlayerInfo.isOnGround && PlayerInfo.playerRigidBody.velocity.y == 0)//落地改回Idle状态,不加中间的判断会让短按空格的小跳逻辑无法执行
+        if (PlayerInfo.isOnGround && PlayerInfo.playerRigidBody.velocity.y == 0)//落地改回Idle状态,和下面被注释掉的两个判断意思应该一样
         {
             stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerIdle);
         }
@@ -307,6 +309,19 @@ public class PlayerJump : FSMBase
             PlayerInfo.playerTransform.localScale = new Vector3(-1, 1, 1);//改变左右朝向
 
             PlayerInfo.playerRigidBody.velocity = new Vector2(Mathf.SmoothDamp(PlayerInfo.playerRigidBody.velocity.x, PlayerInfo.moveSpeed * Time.fixedDeltaTime * 60 * -1, ref PlayerInfo.velocityX, PlayerInfo.accelerateTime), PlayerInfo.playerRigidBody.velocity.y);
+        }
+        #endregion
+
+        #region 二段跳逻辑
+        if (!Input.GetButton("Jump"))
+        {
+            PlayerInfo.canDoubleJump = true;
+        }
+
+
+        if (Input.GetButton("Jump") && PlayerInfo.canDoubleJump)//这里如果用GetButtonDown会吃键，用GetButton会导致一段跳刚开始直接到二段跳，所以需要canDoubleJump检测跳跃键抬起
+        {
+            stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerDoubleJump);
         }
         #endregion
 
@@ -428,3 +443,70 @@ public class PlayerAttack2 : FSMBase
     }
 }
 
+public class PlayerDoubleJump : FSMBase
+{
+    public PlayerDoubleJump(Animator tmpAnimator, FSMManager tmpFSMManager) : base(tmpAnimator, tmpFSMManager)
+    {
+
+    }
+    public override void OnEnter()
+    {
+        PlayerInfo.playerRigidBody.velocity = new Vector2(PlayerInfo.playerRigidBody.velocity.x, PlayerInfo.jumpSpeed);//进入二段跳状态给一个向上的速度
+        stateAnimator.SetInteger("curState", (int)PlayerInfo.PlayerState.PlayerDoubleJump);
+    }
+    public override void OnUpdate()
+    {
+        CheckOnGround();
+        #region 跳跃逻辑
+
+
+
+        if (PlayerInfo.playerRigidBody.velocity.y < 0)//下落状态,加速下落
+        {
+            PlayerInfo.playerRigidBody.velocity += Vector2.up * Physics2D.gravity.y * (PlayerInfo.fallMultiplicator - 1) * Time.fixedDeltaTime;
+        }
+
+
+        if (PlayerInfo.isOnGround && PlayerInfo.playerRigidBody.velocity.y == 0)//落地改回Idle状态
+        {
+            stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerIdle);
+        }
+
+        #endregion
+
+        #region 跳跃移动
+        if (Input.GetAxisRaw("Horizontal") > PlayerInfo.inputDeadZoon.x)
+        {
+            PlayerInfo.playerTransform.localScale = new Vector3(1, 1, 1);
+            PlayerInfo.playerRigidBody.velocity = new Vector2(Mathf.SmoothDamp(PlayerInfo.playerRigidBody.velocity.x, PlayerInfo.moveSpeed * Time.fixedDeltaTime * 60, ref PlayerInfo.velocityX, PlayerInfo.accelerateTime), PlayerInfo.playerRigidBody.velocity.y);
+        }
+        else if (Input.GetAxisRaw("Horizontal") < PlayerInfo.inputDeadZoon.x * -1)
+        {
+            PlayerInfo.playerTransform.localScale = new Vector3(-1, 1, 1);//改变左右朝向
+
+            PlayerInfo.playerRigidBody.velocity = new Vector2(Mathf.SmoothDamp(PlayerInfo.playerRigidBody.velocity.x, PlayerInfo.moveSpeed * Time.fixedDeltaTime * 60 * -1, ref PlayerInfo.velocityX, PlayerInfo.accelerateTime), PlayerInfo.playerRigidBody.velocity.y);
+        }
+        #endregion
+
+        #region 攻击2逻辑
+        if (Input.GetMouseButton(1))
+        {
+            stateFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerAttack2);
+        }
+        #endregion
+
+    }
+
+    private void CheckOnGround()
+    {
+        Collider2D tmpColl = Physics2D.OverlapBox((Vector2)PlayerInfo.playerTransform.position + PlayerInfo.checkpointOffset, PlayerInfo.checkpointSize, 0, PlayerInfo.groundLayerMask);
+        if (tmpColl == null)
+        {
+            PlayerInfo.isOnGround = false;
+        }
+        else
+        {
+            PlayerInfo.isOnGround = true;
+        }
+    }
+}
