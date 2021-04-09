@@ -39,7 +39,12 @@ public class GameManager : MonoSingleton<GameManager>
     void CreatePool()
     {
         GameObject GO = new GameObject();
-        GO.name = "Poooooool";
-        PoolManager.Instance.PoolInit("Ð¡Óñ(8)", resourceType.Bullet ,"Ð¡Óñ (8)", GO.transform);
+        GO.name = "Ð¡Óñ (8)";
+        PoolManager.Instance.PoolInit("Ð¡Óñ (8)", ResourceType.Bullet ,"Ð¡Óñ (8)", GO.transform, 10, 10);
+
+        GO = new GameObject();
+        GO.name = "Ôúµ¯ (8)";
+        PoolManager.Instance.PoolInit("Ôúµ¯ (8)", ResourceType.Bullet, "Ôúµ¯ (8)", GO.transform, 10, 10);
+        
     }
 }

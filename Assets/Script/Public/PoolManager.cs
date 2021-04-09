@@ -20,9 +20,9 @@ public class Pool
     public int cacheCount;//缓存的容量
     public int maxCacheCount; //最大缓存容量  超出部分会立即销毁，剩余部分可以在适当的时机手动调用函数销毁
     //因为unityobject类型 需要手动销毁 也就是destroy才能销毁  class对象的话，只要清空引用，GC机制就会帮忙销毁  因此需要一个字段来标识一下对象的类型
-    //public ItemType type;
-    public int Count { get; }
-    public Transform Parent;
+    public Transform parent;
+    public ResourceType resourceType;//记录类型
+    public string resourceName;//记录名字，如果不够还得找工厂造
 
     public Pool()
     {
@@ -58,21 +58,13 @@ public class PoolManager:Singleton<PoolManager>
     /// <param name="tmpParent">资源父物体</param>
     /// <param name="tmpCacheCount">初始化缓存数量</param>
     /// <param name="tmpMaxCacheCount">最大缓存数量</param>
-    public void PoolInit(string tmpPoolName, resourceType tmpResourceType, string tmpResourceName, Transform tmpParent = null, int tmpCacheCount = 10, int tmpMaxCacheCount = 50)
+    public void PoolInit(string tmpPoolName, ResourceType tmpResourceType, string tmpResourceName, Transform tmpParent = null, int tmpCacheCount = 10, int tmpMaxCacheCount = 10)
     {
-        FactoryBase tmpFactory = new FactoryBase();//基类工厂指针
-        switch (tmpResourceType)
-        {
-            case resourceType.Bullet:
-            {
-                tmpFactory = new BulletFactory();//生产子弹的工厂
-                break;
-            }
-        }
+        FactoryBase tmpFactory = FactoryBase.GetFactoryType(tmpResourceType);
 
         if (allPools.ContainsKey(tmpPoolName))//如果已经有池子了
         {
-            Debug.Log("Already has the " + tmpPoolName + "'s Pool!");
+            Debug.LogWarning("PoolInit ERROR, Already has the " + tmpPoolName + "'s Pool!");
             return;
         }
 
@@ -81,9 +73,10 @@ public class PoolManager:Singleton<PoolManager>
         {
             cacheCount = tmpCacheCount,
             maxCacheCount = tmpMaxCacheCount,
-            Parent = tmpParent
+            parent = tmpParent,
+            resourceType = tmpResourceType,
+            resourceName = tmpResourceName
         };
-
 
         //给池子放入物体
         for (int i = 0; i < tmpCacheCount; i++)
@@ -94,15 +87,64 @@ public class PoolManager:Singleton<PoolManager>
                 Debug.Log("tmpObject is null");
                 return;
             }
+            tmpObject.name = tmpResourceName;
             tmpObject.transform.SetParent(tmpParent);
             tmpObject.SetActive(false);
             tmpPool.items.Push(tmpObject);
         }
         allPools.Add(tmpPoolName, tmpPool);
     }
+
+    public GameObject Create(string tmpPoolName)
+    {
+        if(!allPools.ContainsKey(tmpPoolName))
+        {
+            Debug.LogWarning("Create ERROR, We don't have " + tmpPoolName + " Pool!!");
+            return null;
+        }
+        if (allPools[tmpPoolName].items.Count != 0)
+        {
+            GameObject tmpGO = allPools[tmpPoolName].items.Pop() as GameObject;
+            //Debug.Log(allPools[tmpPoolName].items.Count.ToString());
+            if (tmpGO != null)
+            {
+                //Debug.Log("拿一个");
+                tmpGO.SetActive(true);
+                return tmpGO;
+            }
+        }
+        //Debug.Log("造一个");
+        FactoryBase tmpFactory = FactoryBase.GetFactoryType(allPools[tmpPoolName].resourceType);
+        GameObject tmpObject = tmpFactory.GetResources(allPools[tmpPoolName].resourceName);
+        tmpObject.transform.SetParent(allPools[tmpPoolName].parent);
+        tmpObject.name = allPools[tmpPoolName].resourceName;
+        //allPools[tmpPoolName].items.Push(tmpObject);
+        return tmpObject;
+    }
+
+    public void Recycle(GameObject tmpGO, string tmpPoolName)
+    {
+        if (!allPools.ContainsKey(tmpPoolName))
+        {
+            Debug.LogWarning("Recycle ERROR, We don't have " + tmpPoolName + " Pool!!");
+            GameObject.Destroy(tmpGO);
+            return;
+        }
+        if (allPools[tmpPoolName].items.Count < allPools[tmpPoolName].maxCacheCount)
+        {
+            //Debug.Log(allPools[tmpPoolName].items.Count.ToString() + "    " + allPools[tmpPoolName].maxCacheCount.ToString());
+            tmpGO.SetActive(false);
+            allPools[tmpPoolName].items.Push(tmpGO);
+        }
+        else
+        {
+            //Debug.Log("销毁");
+            GameObject.Destroy(tmpGO);
+        }
+    }
 }
 
-public enum resourceType
+public enum ResourceType
 { 
     Bullet
 }

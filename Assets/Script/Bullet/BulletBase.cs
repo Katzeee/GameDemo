@@ -13,17 +13,53 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BulletBase : MonoBehaviour
+public abstract class BulletBase : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [Tooltip("初始出现的方向")]
+    protected Vector3 initialDirection;
+    [Tooltip("朝向的方向")]
+    protected Vector3 destinationDirection;
+    protected abstract Vector3 nextDirection { get; }
+
+
+    [Header("速度")]
+    [Tooltip("初始速度")]
+    protected float initialSpeed;
+    [Tooltip("加速度")]
+    protected float acceleration;
+    protected float nowSpeed;//当前速度
+
+    protected float nowAngle;
+
+    protected void OnBecameInvisible()
     {
-        
+        //Debug.Log("一次");
+        PoolManager.Instance.Recycle(gameObject, gameObject.name);
+        Destroy(this);//放回池子之后销毁本脚本，不然下次取出再加脚本会有问题
     }
 
-    // Update is called once per frame
-    void Update()
+    protected void OnTriggerEnter2D(Collider2D collision)
     {
-        
+        Debug.Log(collision.tag);
+        Debug.Log(tag);
+        if ((collision.tag == "EnemyBullet" && tag == "Bullet") || (collision.tag == "Bullet" && tag == "EnemyBullet") || (collision.tag == "EnemyBullet" && tag == "EnemyBullet"))
+        {
+            return;
+        }
+        if (collision.tag != "Player" && tag == "Bullet")
+        {
+            gameObject.SetActive(false);//这里不能重新抄上面的方法，因为会导致OnBecameInvisible也被调用一次
+        }
+        if (collision.tag != "Enemy" && tag == "EnemyBullet")
+        {
+            gameObject.SetActive(false);
+        }
+        //Debug.Log("撞到" + collision.name);
     }
+}
+
+public enum BulletType
+{
+    LineBullet,
+    CircleBullet
 }

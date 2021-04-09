@@ -65,6 +65,8 @@ public struct PlayerInfo
     public static float attack2FallMultiplicator;
     [Tooltip("攻击1减速乘数")]
     public static float attack1DecelerateMultiplicator;
+    //[Tooltip("攻击1子弹发射CD")]
+    //public static float attack1CD;
     #endregion
 
 
@@ -189,7 +191,6 @@ public class PlayerRun : FSMBase
         else if (Input.GetAxisRaw("Horizontal") < PlayerInfo.inputDeadZoon.x * -1)
         {
             PlayerInfo.playerTransform.localScale = new Vector3(-1, 1, 1);//改变左右朝向
-
             PlayerInfo.playerRigidBody.velocity = new Vector2(Mathf.SmoothDamp(PlayerInfo.playerRigidBody.velocity.x, PlayerInfo.moveSpeed * Time.fixedDeltaTime * 60 * -1, ref PlayerInfo.velocityX, PlayerInfo.accelerateTime), PlayerInfo.playerRigidBody.velocity.y);
         }
         else
@@ -367,7 +368,7 @@ public class PlayerAttack1 : FSMBase
 {
     public PlayerAttack1(Animator tmpAnimator, FSMManager tmpFSMManager) : base(tmpAnimator, tmpFSMManager)
     {
-
+        
     }
     public override void OnEnter()
     {
@@ -386,19 +387,10 @@ public class PlayerAttack1 : FSMBase
         #region 移动逻辑
         if (Input.GetAxisRaw("Horizontal") > PlayerInfo.inputDeadZoon.x)
         {
-            if (!Input.GetMouseButton(0))//如果不在攻击则转向
-            {
-                PlayerInfo.playerTransform.localScale = new Vector3(1, 1, 1);
-            }
             PlayerInfo.playerRigidBody.velocity = new Vector2(Mathf.SmoothDamp(PlayerInfo.playerRigidBody.velocity.x, PlayerInfo.moveSpeed * PlayerInfo.attack1DecelerateMultiplicator * Time.fixedDeltaTime * 60, ref PlayerInfo.velocityX, PlayerInfo.accelerateTime), PlayerInfo.playerRigidBody.velocity.y);
         }
         else if (Input.GetAxisRaw("Horizontal") < PlayerInfo.inputDeadZoon.x * -1)
         {
-            if (!Input.GetMouseButton(0))//如果不在攻击则转向
-            {
-                PlayerInfo.playerTransform.localScale = new Vector3(-1, 1, 1);//改变左右朝向
-            }
-
             PlayerInfo.playerRigidBody.velocity = new Vector2(Mathf.SmoothDamp(PlayerInfo.playerRigidBody.velocity.x, PlayerInfo.moveSpeed * PlayerInfo.attack1DecelerateMultiplicator * Time.fixedDeltaTime * 60 * -1, ref PlayerInfo.velocityX, PlayerInfo.accelerateTime), PlayerInfo.playerRigidBody.velocity.y);
         }
         else if (!Input.GetButton("Horizontal"))//减速
@@ -406,7 +398,6 @@ public class PlayerAttack1 : FSMBase
             PlayerInfo.playerRigidBody.velocity = new Vector2(Mathf.SmoothDamp(PlayerInfo.playerRigidBody.velocity.x, 0, ref PlayerInfo.velocityX, PlayerInfo.decelerateTime), PlayerInfo.playerRigidBody.velocity.y);
         }
         #endregion
-
 
     }
     public override void OnExit()

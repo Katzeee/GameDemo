@@ -31,6 +31,14 @@ public class PlayerControlFSM : MonoSingleton<PlayerControlFSM>
         PlayerInfo.playerTransform = transform;
         #endregion
 
+        #region 添加组件
+        GameObject shooter = new GameObject();
+        shooter.name = "shooter";
+        shooter.transform.parent = PlayerInfo.playerTransform;
+        shooter.transform.position = PlayerInfo.playerTransform.position + new Vector3(0.18f, 0.42f, 0);
+        shooter.AddComponent<Shooter>();
+        #endregion
+
         #region 参数初始化
         //移动数据初始化
         PlayerInfo.moveSpeed = 5;
@@ -49,6 +57,7 @@ public class PlayerControlFSM : MonoSingleton<PlayerControlFSM>
 
         //攻击数据初始化
         PlayerInfo.attack1DecelerateMultiplicator = 0.5f;
+        //PlayerInfo.attack1CD = 0.3f;
 
         //图层蒙版初始化
         PlayerInfo.groundLayerMask = 1 << 8;

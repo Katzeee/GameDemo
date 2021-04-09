@@ -45,5 +45,26 @@ public class FactoryBase
 
     }
 
+    /// <summary>
+    /// 通过资源类型返回对应的工厂
+    /// </summary>
+    /// <param name="tmpResourceType">资源类型</param>
+    /// <returns></returns>
+    public static FactoryBase GetFactoryType(ResourceType tmpResourceType)
+    {
+        switch (tmpResourceType)
+        {
+            case ResourceType.Bullet:
+                {
+                    return new BulletFactory();//生产子弹的工厂
+                }
+            default:
+                {
+                    Debug.Log("No such Factory named" + tmpResourceType);
+                    return null;
+                }
+        }
+    }
+
 }
 
