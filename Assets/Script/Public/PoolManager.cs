@@ -109,13 +109,14 @@ public class PoolManager:Singleton<PoolManager>
             if (tmpGO != null)
             {
                 //Debug.Log("拿一个");
-                tmpGO.SetActive(true);
+                //tmpGO.SetActive(true);//拿出来之后让他自己true
                 return tmpGO;
             }
         }
         //Debug.Log("造一个");
         FactoryBase tmpFactory = FactoryBase.GetFactoryType(allPools[tmpPoolName].resourceType);
         GameObject tmpObject = tmpFactory.GetResources(allPools[tmpPoolName].resourceName);
+        tmpObject.SetActive(false);//先设为不可见
         tmpObject.transform.SetParent(allPools[tmpPoolName].parent);
         tmpObject.name = allPools[tmpPoolName].resourceName;
         //allPools[tmpPoolName].items.Push(tmpObject);

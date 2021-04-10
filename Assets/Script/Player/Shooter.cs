@@ -56,9 +56,9 @@ public class Shooter : MonoBehaviour
                 //Debug.Log(mousePositionInWorld.ToString());
 
                 #region 发射子弹
-                GameObject tmpGO = PoolManager.Instance.Create("小玉 (8)");
+                GameObject tmpGO = PoolManager.Instance.Create("鳞弹 (10)");
                 LineBullet tmpLineBullet = tmpGO.AddComponent<LineBullet>();
-                tmpLineBullet.Init(shooterTransform.position, mousePositionInWorld, bulletSpeed, acceleration);
+                tmpLineBullet.Init(shooterTransform.position, mousePositionInWorld, bulletSpeed, true, acceleration);
                 #endregion
 
                 #region 改变朝向
@@ -75,7 +75,7 @@ public class Shooter : MonoBehaviour
         }
         #endregion
 
-
+        #region 右键,暂时不用管
         //if (PlayerInfo.playerAnimator.GetInteger("curState") == (int)PlayerInfo.PlayerState.PlayerAttack2)
         //{
         //    if (attack1Timer >= attack1CD)
@@ -106,6 +106,7 @@ public class Shooter : MonoBehaviour
         //        #endregion
         //    }
         //}
+        #endregion
 
     }
 }

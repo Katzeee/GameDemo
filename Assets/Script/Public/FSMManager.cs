@@ -35,6 +35,7 @@ public class FSMManager
     private void Init(int tmpStateCount)
     {
         stateCount = -1;
+        curState = -1;
         allStates = new FSMBase[tmpStateCount];
     }
 

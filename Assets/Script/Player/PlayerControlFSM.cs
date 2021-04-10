@@ -15,7 +15,7 @@ using UnityEngine;
 
 public class PlayerControlFSM : MonoSingleton<PlayerControlFSM>
 {
-
+    FSMBase playerState;//指向基类的指针
     // Start is called before the first frame update
     void Start()
     {
@@ -67,23 +67,25 @@ public class PlayerControlFSM : MonoSingleton<PlayerControlFSM>
         #region 注册状态到状态管理器
         PlayerInfo.playerFSMManager = new FSMManager((int)PlayerInfo.PlayerState.StateCount);
 
-        PlayerIdel playerIdle = new PlayerIdel(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
-        PlayerInfo.playerFSMManager.AddState(playerIdle);
+        playerState = new PlayerIdel(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerState);
 
-        PlayerRun playerRun = new PlayerRun(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
-        PlayerInfo.playerFSMManager.AddState(playerRun);
+        playerState = new PlayerRun(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerState);
 
-        PlayerJump playerJump = new PlayerJump(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
-        PlayerInfo.playerFSMManager.AddState(playerJump);
+        playerState = new PlayerJump(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerState);
 
-        PlayerAttack1 playerAttack1 = new PlayerAttack1(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
-        PlayerInfo.playerFSMManager.AddState(playerAttack1);
+        playerState = new PlayerAttack1(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerState);
 
-        PlayerAttack2 playerAttack2 = new PlayerAttack2(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
-        PlayerInfo.playerFSMManager.AddState(playerAttack2);
+        playerState = new PlayerAttack2(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerState);
 
-        PlayerDoubleJump playerDoubleJump = new PlayerDoubleJump(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
-        PlayerInfo.playerFSMManager.AddState(playerDoubleJump);
+        playerState = new PlayerDoubleJump(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerState);
+
+        PlayerInfo.playerFSMManager.ChangeState((sbyte)PlayerInfo.PlayerState.PlayerIdle);//进入状态
         #endregion
     }
 

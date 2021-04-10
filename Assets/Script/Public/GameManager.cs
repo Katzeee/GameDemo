@@ -30,6 +30,15 @@ public class GameManager : MonoSingleton<GameManager>
     void Update()
     {
         globleTimer.Update();
+        Boss2.Instance.bossFSMManager.OnUpdate();
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            Time.timeScale = 0.01f;
+        }
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            Time.timeScale = 1;
+        }
     }
 
     private void FixedUpdate()
@@ -61,6 +70,11 @@ public class GameManager : MonoSingleton<GameManager>
         GO = new GameObject();
         GO.name = "¥Û”Ò (2)";
         PoolManager.Instance.PoolInit("¥Û”Ò (2)", ResourceType.Bullet, "¥Û”Ò (2)", GO.transform, 300, 300);
+
+        GO = new GameObject();
+        GO.name = "¡€µØ(10)";
+        PoolManager.Instance.PoolInit("¡€µØ (10)", ResourceType.Bullet, "¡€µØ (10)", GO.transform, 10, 20);
+        
 
     }
 }

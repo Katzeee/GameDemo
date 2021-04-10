@@ -5,7 +5,7 @@
  *Version: 1.0
  *UnityVersion: 2019.4.11f1
  *Date: 2021-04-09 21:32:50
- *Description: 圆形子弹
+ *Description: 圆形轨迹子弹
 *****************************************/
 
 
@@ -15,7 +15,7 @@ using UnityEngine;
 
 public class CircleBullet : BulletBase
 {
-    protected override Vector3 nextDirection => (new Vector3(Mathf.Cos(nowAngle + angularSpeed), Mathf.Sin(nowAngle + angularSpeed)) * radius) + initialDirection;
+    protected override Vector3 nextDirection => (new Vector3(Mathf.Cos(nowAngle + angularSpeed), Mathf.Sin(nowAngle + angularSpeed)) * radius) + initialPosition;
 
     protected float radius;//半径
 
@@ -28,23 +28,30 @@ public class CircleBullet : BulletBase
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="tmpInitalDirection">初始位置,不是方向</param>
-    /// <param name="tmpRadius"></param>
-    /// <param name="tmpRadiusSpeed"></param>
+    /// <param name="tmpInitalPosition">初始位置,不是方向</param>
+    /// <param name="tmpRadius">半径</param>
+    /// <param name="tmpRadiusSpeed">半径扩张速度</param>
     /// <param name="tmpNowAngle">初始朝向角度,方向在这里定</param>
-    /// <param name="tmpAngularSpeed"></param>
-    public void Init(Vector3 tmpInitalDirection, float tmpRadius = 1, float tmpRadiusSpeed = 0,float tmpNowAngle = 0, float tmpAngularSpeed = 0.02f)
+    /// <param name="tmpAngularSpeed">角速度</param>
+    public void Init(Vector3 tmpInitialPosition, float tmpRadius = 1, float tmpRadiusSpeed = 0,float tmpNowAngle = 0, float tmpAngularSpeed = 0.02f)
     {
 
-        initialDirection = tmpInitalDirection;
+        transform.position = tmpInitialPosition;
+        gameObject.SetActive(true);//在这里设为true,取出来的时候直接设true会导致再上次死亡地点闪现一次
+
+        #region 赋初值
+        initialPosition = tmpInitialPosition;
         radius = tmpRadius;
         radiusSpeed = tmpRadiusSpeed;
         nowAngle = tmpNowAngle;
         angularSpeed = tmpAngularSpeed;
+        #endregion
+
+
 
     }
 
-    // Update is called once per frame
+
     void FixedUpdate()
     {
         transform.position = nextDirection;

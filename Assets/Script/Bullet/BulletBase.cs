@@ -15,11 +15,15 @@ using UnityEngine;
 
 public abstract class BulletBase : MonoBehaviour
 {
+    [Header("方向")]
     [Tooltip("初始出现的方向")]
-    protected Vector3 initialDirection;
-    [Tooltip("朝向的方向")]
-    protected Vector3 destinationDirection;
+    protected Vector3 initialPosition;
+    [Tooltip("最终朝向的方向")]
+    protected Vector3 destinationPosition;
     protected abstract Vector3 nextDirection { get; }
+    protected float nowAngle;//现在的角度,同时可以用于控制非对称子弹朝向
+    //protected float nextAngle;
+    protected bool isRotate;//是否需要控制旋转
 
 
     [Header("速度")]
@@ -29,15 +33,12 @@ public abstract class BulletBase : MonoBehaviour
     protected float acceleration;
     protected float nowSpeed;//当前速度
 
-    protected float nowAngle;
-
-    private Collider2D bulletCollider;
-
-
 
     protected void OnBecameInvisible()
     {
         //Debug.Log("一次");
+        transform.localScale = Vector3.one;//翻转回来
+        transform.position = Vector3.zero;
         PoolManager.Instance.Recycle(gameObject, gameObject.name);
         Destroy(this);//放回池子之后销毁本脚本，不然下次取出再加脚本会有问题
     }

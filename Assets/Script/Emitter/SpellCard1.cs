@@ -13,13 +13,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SpellCast1 : SpellCardBase
+public class SpellCard1 : SpellCardBase
 {
     float timer = 5;
     
     // Start is called before the first frame update
     void Start()
     {
+        //Debug.Log("子类start");
         Init();
     }
 
@@ -38,8 +39,8 @@ public class SpellCast1 : SpellCardBase
             timer = 0;
             StopAllCoroutines();
             //StartCoroutine(ShootLine("扎弹 (8)", Mathf.PI, Mathf.PI, 0.1f, 24, 0.005f, Mathf.PI / 12, 20, 0));//单个螺旋子弹
-            StartCoroutine(ShootLine("扎弹 (8)", -Mathf.PI, Mathf.PI, Mathf.PI / 6, 1, 0, 0, 100, 0, Mathf.PI / 24));//四周都在螺旋子弹
-            StartCoroutine(ShootLine("环玉 (3)", - Mathf.PI * 23 / 24, Mathf.PI * 23 / 24, Mathf.PI / 12, 4, 0.2f, 0, 5, 0.5f));
+            //StartCoroutine(ShootLine("扎弹 (8)", -Mathf.PI, Mathf.PI, Mathf.PI / 6, 1, 0, 0, 100, 0, Mathf.PI / 24));//四周都在螺旋子弹
+            //StartCoroutine(ShootLine("环玉 (3)", - Mathf.PI * 23 / 24, Mathf.PI * 23 / 24, Mathf.PI / 12, 4, 0.2f, 0, 5, 0.5f));
             StartCoroutine(ShootCircle("大玉 (2)", -Mathf.PI, Mathf.PI, Mathf.PI / 6));
         }
     }
