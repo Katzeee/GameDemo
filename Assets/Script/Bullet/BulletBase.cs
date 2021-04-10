@@ -31,6 +31,10 @@ public abstract class BulletBase : MonoBehaviour
 
     protected float nowAngle;
 
+    private Collider2D bulletCollider;
+
+
+
     protected void OnBecameInvisible()
     {
         //Debug.Log("一次");
@@ -40,12 +44,9 @@ public abstract class BulletBase : MonoBehaviour
 
     protected void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log(collision.tag);
-        Debug.Log(tag);
-        if ((collision.tag == "EnemyBullet" && tag == "Bullet") || (collision.tag == "Bullet" && tag == "EnemyBullet") || (collision.tag == "EnemyBullet" && tag == "EnemyBullet"))
-        {
-            return;
-        }
+        //Debug.Log(collision.tag);
+        //Debug.Log(tag);
+
         if (collision.tag != "Player" && tag == "Bullet")
         {
             gameObject.SetActive(false);//这里不能重新抄上面的方法，因为会导致OnBecameInvisible也被调用一次

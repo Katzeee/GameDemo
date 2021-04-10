@@ -15,7 +15,13 @@ using UnityEngine;
 
 public class SpellCardBase : MonoBehaviour
 {
-    // Start is called before the first frame update
+    protected Vector3 shootCenter;
+
+    protected virtual void Init()
+    {
+        shootCenter = transform.parent.position + new Vector3(0, 0.4f, 0);
+    }
+
     void Start()
     {
         

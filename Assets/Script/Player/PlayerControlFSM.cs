@@ -65,32 +65,32 @@ public class PlayerControlFSM : MonoSingleton<PlayerControlFSM>
 
 
         #region ×¢²á×´Ì¬µ½×´Ì¬¹ÜÀíÆ÷
-        PlayerInfo.playerStateManager = new FSMManager((int)PlayerInfo.PlayerState.StateCount);
+        PlayerInfo.playerFSMManager = new FSMManager((int)PlayerInfo.PlayerState.StateCount);
 
-        PlayerIdel playerIdle = new PlayerIdel(PlayerInfo.playerAnimator, PlayerInfo.playerStateManager);
-        PlayerInfo.playerStateManager.AddState(playerIdle);
+        PlayerIdel playerIdle = new PlayerIdel(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerIdle);
 
-        PlayerRun playerRun = new PlayerRun(PlayerInfo.playerAnimator, PlayerInfo.playerStateManager);
-        PlayerInfo.playerStateManager.AddState(playerRun);
+        PlayerRun playerRun = new PlayerRun(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerRun);
 
-        PlayerJump playerJump = new PlayerJump(PlayerInfo.playerAnimator, PlayerInfo.playerStateManager);
-        PlayerInfo.playerStateManager.AddState(playerJump);
+        PlayerJump playerJump = new PlayerJump(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerJump);
 
-        PlayerAttack1 playerAttack1 = new PlayerAttack1(PlayerInfo.playerAnimator, PlayerInfo.playerStateManager);
-        PlayerInfo.playerStateManager.AddState(playerAttack1);
+        PlayerAttack1 playerAttack1 = new PlayerAttack1(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerAttack1);
 
-        PlayerAttack2 playerAttack2 = new PlayerAttack2(PlayerInfo.playerAnimator, PlayerInfo.playerStateManager);
-        PlayerInfo.playerStateManager.AddState(playerAttack2);
+        PlayerAttack2 playerAttack2 = new PlayerAttack2(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerAttack2);
 
-        PlayerDoubleJump playerDoubleJump = new PlayerDoubleJump(PlayerInfo.playerAnimator, PlayerInfo.playerStateManager);
-        PlayerInfo.playerStateManager.AddState(playerDoubleJump);
+        PlayerDoubleJump playerDoubleJump = new PlayerDoubleJump(PlayerInfo.playerAnimator, PlayerInfo.playerFSMManager);
+        PlayerInfo.playerFSMManager.AddState(playerDoubleJump);
         #endregion
     }
 
 
     public void OnFixedUpdate()
     {
-        PlayerInfo.playerStateManager.OnUpdate();
+        PlayerInfo.playerFSMManager.OnUpdate();
     }
 
 

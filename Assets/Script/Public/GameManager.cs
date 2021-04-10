@@ -15,9 +15,13 @@ using UnityEngine;
 
 public class GameManager : MonoSingleton<GameManager>
 {
-    // Start is called before the first frame update
+
+
+
+    public PETimer globleTimer;
     void Start()
     {
+        Init();
         CreatePool();
         PlayerControlFSM.Instance.Init();
     }
@@ -25,15 +29,19 @@ public class GameManager : MonoSingleton<GameManager>
     // Update is called once per frame
     void Update()
     {
-        //if(Input.GetKeyDown(KeyCode.Space))
-        //{
-        //    Debug.Log(PlayerInfo.playerStateManager.curState);
-        //}
+        globleTimer.Update();
     }
 
     private void FixedUpdate()
     {
         PlayerControlFSM.Instance.OnFixedUpdate();
+    }
+
+
+
+    void Init()
+    {
+        globleTimer = new PETimer();
     }
 
     void CreatePool()
@@ -44,7 +52,15 @@ public class GameManager : MonoSingleton<GameManager>
 
         GO = new GameObject();
         GO.name = "Ôúµ¯ (8)";
-        PoolManager.Instance.PoolInit("Ôúµ¯ (8)", ResourceType.Bullet, "Ôúµ¯ (8)", GO.transform, 10, 10);
-        
+        PoolManager.Instance.PoolInit("Ôúµ¯ (8)", ResourceType.Bullet, "Ôúµ¯ (8)", GO.transform, 300, 300);
+
+        GO = new GameObject();
+        GO.name = "»·Óñ (3)";
+        PoolManager.Instance.PoolInit("»·Óñ (3)", ResourceType.Bullet, "»·Óñ (3)", GO.transform, 300, 300);
+
+        GO = new GameObject();
+        GO.name = "´óÓñ (2)";
+        PoolManager.Instance.PoolInit("´óÓñ (2)", ResourceType.Bullet, "´óÓñ (2)", GO.transform, 300, 300);
+
     }
 }

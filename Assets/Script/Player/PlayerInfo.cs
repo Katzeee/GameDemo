@@ -73,7 +73,7 @@ public struct PlayerInfo
     #region 动态组件或变量
     public static Rigidbody2D playerRigidBody;
     public static Animator playerAnimator;//获得玩家的动画控制器
-    public static FSMManager playerStateManager;//管理玩家的状态
+    public static FSMManager playerFSMManager;//管理玩家的状态
     public static Transform playerTransform;//减少调用.transform开销
     #endregion
 

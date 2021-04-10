@@ -15,10 +15,7 @@ using UnityEngine;
 
 public class CircleBullet : BulletBase
 {
-    //protected override Vector3 initialDirection;
-    //protected override Vector3 NowVector { get; protected set; }
     protected override Vector3 nextDirection => (new Vector3(Mathf.Cos(nowAngle + angularSpeed), Mathf.Sin(nowAngle + angularSpeed)) * radius) + initialDirection;
-    //public override bool IsRotatToFace { get; set; } = true;
 
     protected float radius;//半径
 
@@ -27,6 +24,15 @@ public class CircleBullet : BulletBase
 
     protected float angularSpeed;//角速度
 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="tmpInitalDirection">初始位置,不是方向</param>
+    /// <param name="tmpRadius"></param>
+    /// <param name="tmpRadiusSpeed"></param>
+    /// <param name="tmpNowAngle">初始朝向角度,方向在这里定</param>
+    /// <param name="tmpAngularSpeed"></param>
     public void Init(Vector3 tmpInitalDirection, float tmpRadius = 1, float tmpRadiusSpeed = 0,float tmpNowAngle = 0, float tmpAngularSpeed = 0.02f)
     {
 
