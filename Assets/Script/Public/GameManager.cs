@@ -24,6 +24,7 @@ public class GameManager : MonoSingleton<GameManager>
         Init();
         CreatePool();
         PlayerControlFSM.Instance.Init();
+        CameraControl.Instance.Init();
     }
 
     // Update is called once per frame
